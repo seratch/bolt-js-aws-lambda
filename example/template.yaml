@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  bolt-js-aws-lambda-app
+
+  Sample SAM Template for bolt-js-aws-lambda-app
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    
+Resources:
+  # Single Workspace App
+  SlackEventsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: slack-events/
+      Handler: app.main
+      Runtime: nodejs12.x
+      Events:
+        SlackEvents:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /slack/events
+            Method: post
+      Environment:
+        Variables:
+          SLACK_BOT_TOKEN: !Ref SlackBotToken
+          SLACK_SIGNING_SECRET: !Ref SlackSigningSecret
+
+  # Distributed App
+  SlackOAuthApp:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: slack-oauth/
+      Handler: app.eventHandler
+      Runtime: nodejs12.x
+      Events:
+        SlackEvents:
+          Type: Api
+          Properties:
+            Path: /slack/oauth-sevents
+            Method: post
+      Environment:
+        Variables:
+          SLACK_SIGNING_SECRET: !Ref SlackSigningSecret
+          SLACK_INSTALLATION_S3_BUCKET_NAME: !Ref SlackInstallationS3BucketName
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref SlackInstallationS3BucketName
+  SlackOAuthFlow:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: slack-oauth/
+      Handler: app.oauthHandler
+      Runtime: nodejs12.x
+      Events:
+        SlackInstall:
+          Type: Api
+          Properties:
+            Path: /slack/install
+            Method: get
+        SlackOAuthRedirect:
+          Type: Api
+          Properties:
+            Path: /slack/oauth_redirect
+            Method: get
+      Environment:
+        Variables:
+          SLACK_CLIENT_ID: !Ref SlackClientId
+          SLACK_CLIENT_SECRET: !Ref SlackClientSecret
+          SLACK_SCOPES: !Ref SlackScopes
+          SLACK_INSTALLATION_S3_BUCKET_NAME: !Ref SlackInstallationS3BucketName
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref SlackInstallationS3BucketName
+
+Parameters:
+  SlackBotToken:
+    Type: String
+  SlackSigningSecret:
+    Type: String
+  SlackClientId:
+    Type: String
+  SlackClientSecret:
+    Type: String
+  SlackScopes:
+    Type: String
+  SlackInstallationS3BucketName:
+    Type: String

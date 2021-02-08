@@ -1,0 +1,13 @@
+# node / npm stuff
+node_modules/
+package-lock.json
+*.tgz
+
+# build products
+dist/
+
+# coverage
+.nyc_output/
+coverage/
+
+build/

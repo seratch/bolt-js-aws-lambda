@@ -1,0 +1,31 @@
+{
+  "name": "bolt-aws-lambda",
+  "version": "0.0.1",
+  "description": "Bolt Receiver implmentation for AWS Lambda users",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=12.13.0",
+    "npm": ">=6.12.0"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Kazuhiro Sera",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/bolt": "^3.1.1",
+    "@types/aws-lambda": "^8.10.71",
+    "@types/node": "^14.14.20",
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "tsd": {
+    "directory": "types-tests"
+  }
+}
